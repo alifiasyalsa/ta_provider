@@ -59,52 +59,6 @@ class _MyHomePageState extends State<MyHomePage> {
     return await _movieService.readMovies(limit);
   }
 
-  // Widget moviesDetailCard(Movie) {
-  //   return Padding(
-  //     padding: const EdgeInsets.all(10.0),
-  //     child: Card(
-  //       color: Colors.grey[800],
-  //       child: Padding(
-  //         padding: const EdgeInsets.all(8.0),
-  //         child: Row(
-  //           children: <Widget>[
-  //             Padding(
-  //               padding: const EdgeInsets.all(8.0),
-  //               child: Container(
-  //                   width: 50.0,
-  //                   height: 50.0,
-  //                   decoration: new BoxDecoration(
-  //                       shape: BoxShape.circle,
-  //                       image: new DecorationImage(
-  //                           fit: BoxFit.cover,
-  //                           image: AssetImage(Movie.profileImg)
-  //                       )
-  //                   )),
-  //             ),
-  //             Column(
-  //               crossAxisAlignment: CrossAxisAlignment.start,
-  //               children: <Widget>[
-  //                 Text(Movie.name,
-  //                   style: TextStyle (
-  //                       color: Colors.white,
-  //                       fontSize: 18
-  //                   ),
-  //                 ),
-  //                 Text(Movie.bio,
-  //                   style: TextStyle (
-  //                       color: Colors.white,
-  //                       fontSize: 12
-  //                   ),
-  //                 )
-  //               ],
-  //             )
-  //           ],
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -278,7 +232,15 @@ class _MyHomePageState extends State<MyHomePage> {
                                       flex: 1,
                                       child: Container(
                                         height: 120,
-                                        color: Colors.lightBlue,
+                                        width: 100.0,
+                                        decoration: BoxDecoration(
+                                            image: DecorationImage(
+                                                image: AssetImage(
+                                                    i.image.toString()
+                                                ),
+                                                fit: BoxFit.cover
+                                            )
+                                        ),
                                       ),
                                     ),
                                     Flexible(
@@ -292,7 +254,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                             Consumer<ThemeProvider>(
                                             builder: (context, themeProvider, child) =>
                                               Text(
-                                                i.title.toString() + " " +  i.id.toString(),
+                                                i.title.toString(),
                                                 style: TextStyle(
                                                     fontWeight: FontWeight.bold,
                                                     fontSize: 20,

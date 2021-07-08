@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -24,34 +25,27 @@ class DatabaseConnection {
         "CREATE TABLE movies(id INTEGER PRIMARY KEY, title TEXT, synopsis TEXT, image TEXT, genre TEXT)");
   }
 
+
   Future<FutureOr<void>> _onOpenDatabase(Database db) async {
     await db.execute("DROP TABLE IF EXISTS movies");
     await db.execute(
         "CREATE TABLE movies(id INTEGER PRIMARY KEY, title TEXT, synopsis TEXT, image TEXT, genre TEXT)");
     print("Database recreated");
 
-    // String data =
-    // await DefaultAssetBundle.of(context).loadString("assets/json/movies.json");
-    //
-    // var jsonData = json.decode(data);
-    //
-    // jsonData.forEach((item) {
-    //   item.forEach((key, value) {
-    //     employeeList.add(Employee(
-    //         firstName: value['firstName'],
-    //         lastName: value['lastName'],
-    //         website: value['website']));
-    //   });
-    // });
-    for (var i = 0; i < 10000; i++) {
+    final String response = await rootBundle.loadString('assets/json/movies.json');
+    final data = await json.decode(response);
+    List<dynamic> movieList = data;
+
+    for (var i = 0; i < 1000; i++) {
       var movie = Movie(
-          i,
-          "Spiderman",
-          "This movie is about a teenager that turns into",
-          "image.jp",
-          "Action",
-          );
+        movieList[i]['id'],
+        movieList[i]['title'].toString(),
+        movieList[i]['synopsis'].toString(),
+        movieList[i]['image'].toString(),
+        movieList[i]['genre'].toString(),
+      );
       await db.insert('movies', movie.toMap());
     }
   }
+
 }

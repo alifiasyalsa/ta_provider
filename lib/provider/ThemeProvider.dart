@@ -5,6 +5,7 @@ class ThemeProvider extends ChangeNotifier {
   Color titleColor = Colors.black;
   double themeFontSize = 10;
   String themeFontFamily = "Arial";
+  List<double> imageSize = [100.0,120.0];
 
   void changeTextColor(Color newTextColor) {
     titleColor = newTextColor;
@@ -23,6 +24,16 @@ class ThemeProvider extends ChangeNotifier {
 
   void changeFontFamily(String newFontFamily) {
     themeFontFamily = newFontFamily;
+    notifyListeners();
+  }
+
+  void changeImageSize(String newSize){
+    if(newSize == "small") {
+      this.imageSize = [100.0,120.0];
+    }else{
+      this.imageSize = [120.0,140.0];
+    }
+
     notifyListeners();
   }
 }

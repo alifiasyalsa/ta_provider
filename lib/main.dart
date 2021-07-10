@@ -3,6 +3,7 @@ import 'package:ta_provider/models/Movie.dart';
 import 'package:ta_provider/services/MovieService.dart';
 import 'package:ta_provider/provider/ThemeProvider.dart';
 import 'package:provider/provider.dart';
+import 'package:readmore/readmore.dart';
 
 void main() {
   runApp(MyApp());
@@ -45,13 +46,13 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final MovieService _movieService = MovieService();
   late Future<List<Movie>> _movieList;
-  String dropdownValue = '1000';
+  int dropdownValue = 1000;
 
   @override
   void initState() {
     super.initState();
     print("init");
-    _movieList = getMovies(1000);
+    _movieList = getMovies(dropdownValue);
   }
 
   Future<List<Movie>> getMovies(int limit) async {
@@ -182,14 +183,14 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   Flexible(
                     flex: 2,
-                    child: DropdownButtonFormField<String>(
+                    child: DropdownButtonFormField<int>(
                       value: dropdownValue,
-                      items: <String>['100', '1000', '10000']
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
+                      items: <int>[1000, 5000, 10000]
+                          .map<DropdownMenuItem<int>>((int value) {
+                        return DropdownMenuItem<int>(
                           value: value,
                           child: Text(
-                            value,
+                            value.toString(),
                             textAlign: TextAlign.right,
                           ),
                         );
@@ -230,17 +231,21 @@ class _MyHomePageState extends State<MyHomePage> {
                                   children: [
                                     Flexible(
                                       flex: 1,
-                                      child: Container(
-                                        height: 120,
-                                        width: 100.0,
-                                        decoration: BoxDecoration(
-                                            image: DecorationImage(
-                                                image: AssetImage(
-                                                    i.image.toString()
-                                                ),
-                                                fit: BoxFit.cover
-                                            )
-                                        ),
+                                      child:
+                                      Consumer<ThemeProvider>(
+                                        builder: (context, themeProvider, child) =>
+                                            Container(
+                                              height: themeProvider.imageSize[1],
+                                              width: themeProvider.imageSize[0],
+                                              decoration: BoxDecoration(
+                                                  image: DecorationImage(
+                                                      image: AssetImage(
+                                                          i.image.toString()
+                                                      ),
+                                                      fit: BoxFit.cover
+                                                  )
+                                              ),
+                                            ),
                                       ),
                                     ),
                                     Flexible(
@@ -292,13 +297,19 @@ class _MyHomePageState extends State<MyHomePage> {
                                             ),
                                             Consumer<ThemeProvider>(
                                               builder: (context, themeProvider, child) =>
-                                                Text(
-                                                  i.synopsis.toString(),
-                                                  style: TextStyle(
-                                                    fontSize: themeProvider.themeFontSize,
-                                                    fontFamily: themeProvider.themeFontFamily,
+                                                  ReadMoreText(
+                                                    i.synopsis.toString(),
+                                                    trimLines: 2,
+                                                    colorClickableText: Colors.pink,
+                                                    trimMode: TrimMode.Line,
+                                                    trimCollapsedText: 'Show more',
+                                                    trimExpandedText: 'Show less',
+                                                    style:
+                                                    TextStyle(
+                                                      fontSize: themeProvider.themeFontSize,
+                                                      fontFamily: themeProvider.themeFontFamily,
+                                                    ),
                                                   ),
-                                                ),
                                             ),
                                           ],
                                         ),
@@ -357,6 +368,14 @@ class _MyHomePageState extends State<MyHomePage> {
       case 7:
         ThemeProvider themeProvider = Provider.of<ThemeProvider>(context, listen: false);
         themeProvider.changeFontFamily("Roboto");
+        break;
+      case 8:
+        ThemeProvider themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+        themeProvider.changeImageSize("small");
+        break;
+      case 9:
+        ThemeProvider themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+        themeProvider.changeImageSize("big");
         break;
     }
   }

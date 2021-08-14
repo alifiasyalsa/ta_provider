@@ -2,19 +2,19 @@ import 'package:ta_provider/models/Movie.dart';
 import 'package:ta_provider/repositories/Repository.dart';
 
 class MovieService {
-  Repository? _repository = null;
+  Repository _repository = null;
 
   MovieService() {
     _repository = Repository();
   }
 
   saveMovie(Movie movie) async {
-    return await _repository!.insertData('movies', movie.toMap());
+    return await _repository.insertData('movies', movie.toMap());
   }
 
   readMovies(int limit) async {
     List<Movie> _movieList = <Movie>[];
-    var movies = await _repository!.getMovies('movies',limit);
+    var movies = await _repository.getMovies('movies',limit);
     movies.forEach((movie) {
       var movieObj = Movie(movie['id'], movie['title'], movie['synopsis'],
           movie['image'], movie['genre']);

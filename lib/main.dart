@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:ta_provider/models/Movie.dart';
+import 'package:ta_provider/provider/TextColorProvider.dart';
+import 'package:ta_provider/provider/CardProvider.dart';
+import 'package:ta_provider/provider/FontFamilyProvider.dart';
+import 'package:ta_provider/provider/FontSizeProvider.dart';
+import 'package:ta_provider/provider/ImageSizeProvider.dart';
 import 'package:ta_provider/services/MovieService.dart';
-import 'package:ta_provider/provider/ThemeProvider.dart';
 import 'package:provider/provider.dart';
-import 'package:readmore/readmore.dart';
 
 void main() {
   runApp(MyApp());
@@ -12,30 +15,30 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<ThemeProvider>(        // define it
-        create: (context) => ThemeProvider(),
-        child :MaterialApp(
-          title: 'Provider',
-          theme: ThemeData(
-            primarySwatch: Colors.blue,
-          ),
-          home: MyHomePage(title: 'Movie DB'),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => TextColorProvider()),
+        ChangeNotifierProvider(create: (context) => CardColorProvider()),
+        ChangeNotifierProvider(create: (context) => FontSizesProvider()),
+        ChangeNotifierProvider(create: (context) => FontFamilyProvider()),
+        ChangeNotifierProvider(create: (context) => ImageSizeProvider()),
+      ],
+      child: MaterialApp(
+        title: 'MovDB - Provider',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
         ),
+        home: MyHomePage(title: 'MovDB'),
+      ),
     );
   }
 }
 
+class FontSizeProvider {
+}
+
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
+  MyHomePage({Key key, this.title}) : super(key: key);
 
   final String title;
 
@@ -45,7 +48,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final MovieService _movieService = MovieService();
-  late Future<List<Movie>> _movieList;
+  Future<List<Movie>> _movieList;
   int dropdownValue = 1000;
 
   @override
@@ -63,6 +66,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         iconTheme: IconThemeData(
@@ -76,16 +80,11 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
         actions: <Widget>[
-          IconButton(
-            icon: Icon(
-              Icons.favorite_border_rounded,
-            ),
-            onPressed: (){},
-          ),
           PopupMenuButton<int>(
             padding: const EdgeInsets.all(0.0),
             onSelected: (item) => onSelected(context, item),
-            itemBuilder: (context) => [
+            itemBuilder: (context) =>
+            [
               PopupMenuItem<int>(
                 value: 0,
                 child: ListTile(
@@ -103,7 +102,7 @@ class _MyHomePageState extends State<MyHomePage> {
               PopupMenuItem<int>(
                 value: 2,
                 child: ListTile(
-                  leading: Icon(Icons.widgets_outlined),
+                  leading: Icon(Icons.widgets),
                   title: Text('White Card'),
                 ),
               ),
@@ -195,9 +194,11 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                         );
                       }).toList(),
-                      onChanged: (newValue) => setState(() {
-                        dropdownValue = newValue!;
-                      }),
+                      onChanged: (newValue) =>
+                          setState(() {
+                            dropdownValue = newValue;
+                            _movieList = getMovies(newValue);
+                          }),
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
                       ),
@@ -214,114 +215,140 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Container(
                 child: FutureBuilder(
                     future: _movieList,
-                    builder: (context, AsyncSnapshot? snapshots) {
-                      if (snapshots!.hasError) {
+                    builder: (context, AsyncSnapshot snapshots) {
+                      if (snapshots.hasError) {
                         return Text(
                             'Error while retrieving data from database');
                       } else if (snapshots.hasData) {
-                        return Column(
-                          children: [
-                            for (var i in snapshots.data)
-                            Consumer<ThemeProvider>(
-                              builder: (context, themeProvider, child) =>
-                              Card(
-                                color: themeProvider.cardColor,
-                                elevation: 5,
-                                child: Row(
-                                  children: [
-                                    Flexible(
-                                      flex: 1,
-                                      child:
-                                      Consumer<ThemeProvider>(
-                                        builder: (context, themeProvider, child) =>
-                                            Container(
-                                              height: themeProvider.imageSize[1],
-                                              width: themeProvider.imageSize[0],
-                                              decoration: BoxDecoration(
-                                                  image: DecorationImage(
-                                                      image: AssetImage(
-                                                          i.image.toString()
-                                                      ),
-                                                      fit: BoxFit.cover
-                                                  )
-                                              ),
-                                            ),
-                                      ),
-                                    ),
-                                    Flexible(
-                                      flex: 2,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                          children: [
-                                            Consumer<ThemeProvider>(
-                                            builder: (context, themeProvider, child) =>
-                                              Text(
-                                                i.title.toString(),
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 20,
-                                                    color: themeProvider.titleColor,
-                                                    // fontFamily: themeProvider.themeFontFamily,
-                                                ),
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              height: 5,
-                                            ),
-                                            Container(
-                                              decoration: BoxDecoration(
-                                                borderRadius: BorderRadius.all(
-                                                    Radius.circular(20)),
-                                                color: Colors.amber,
-                                              ),
-                                              child: Padding(
-                                                padding:
-                                                const EdgeInsets.all(8.0),
+                        return SingleChildScrollView(
+                          scrollDirection: Axis.vertical,
+                          child: Column(
+                            children: [
+                              for (var i in snapshots.data)
+                                Consumer<CardColorProvider>(
+                                    builder: (context, themeProvider, child) =>
+                                        Card(
+                                          color: themeProvider.cardColor,
+                                          elevation: 5,
+                                          child: Row(
+                                            children: [
+                                              Flexible(
+                                                flex: 1,
                                                 child:
-                                                Consumer<ThemeProvider>(
-                                                  builder: (context, themeProvider, child) => Text(
-                                                    i.genre.toString(),
-                                                    style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontFamily: themeProvider.themeFontFamily,
-                                                    ),
-                                                  ),
+                                                Consumer<ImageSizeProvider>(
+                                                  builder: (context,
+                                                      themeProvider, child) =>
+                                                      Container(
+                                                        height: themeProvider
+                                                            .imageSize[1],
+                                                        width: themeProvider
+                                                            .imageSize[0],
+                                                        decoration: BoxDecoration(
+                                                            image: DecorationImage(
+                                                                image: AssetImage(
+                                                                    i.image
+                                                                        .toString()
+                                                                ),
+                                                                fit: BoxFit
+                                                                    .cover
+                                                            )
+                                                        ),
+                                                      ),
                                                 ),
                                               ),
-                                            ),
-                                            SizedBox(
-                                              height: 5,
-                                            ),
-                                            Consumer<ThemeProvider>(
-                                              builder: (context, themeProvider, child) =>
-                                                  ReadMoreText(
-                                                    i.synopsis.toString(),
-                                                    trimLines: 2,
-                                                    colorClickableText: Colors.pink,
-                                                    trimMode: TrimMode.Line,
-                                                    trimCollapsedText: 'Show more',
-                                                    trimExpandedText: 'Show less',
-                                                    style:
-                                                    TextStyle(
-                                                      fontSize: themeProvider.themeFontSize,
-                                                      fontFamily: themeProvider.themeFontFamily,
-                                                    ),
+                                              Flexible(
+                                                flex: 2,
+                                                child: Padding(
+                                                  padding: const EdgeInsets.all(
+                                                      8.0),
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                    children: [
+                                                      Consumer<
+                                                          TextColorProvider>(
+                                                        builder: (context,
+                                                            themeProvider,
+                                                            child) =>
+                                                            Text(
+                                                              i.title
+                                                                  .toString(),
+                                                              style: TextStyle(
+                                                                fontWeight: FontWeight
+                                                                    .bold,
+                                                                fontSize: 20,
+                                                                color: themeProvider
+                                                                    .titleColor,
+                                                                // fontFamily: themeProvider.themeFontFamily,
+                                                              ),
+                                                            ),
+                                                      ),
+                                                      SizedBox(
+                                                        height: 5,
+                                                      ),
+                                                      Container(
+                                                        decoration: BoxDecoration(
+                                                          borderRadius: BorderRadius
+                                                              .all(
+                                                              Radius.circular(
+                                                                  20)),
+                                                          color: Colors.amber,
+                                                        ),
+                                                        child: Padding(
+                                                          padding:
+                                                          const EdgeInsets.all(
+                                                              8.0),
+                                                          child:
+                                                          Consumer<
+                                                              FontFamilyProvider>(
+                                                            builder: (context,
+                                                                themeProvider,
+                                                                child) =>
+                                                                Text(
+                                                                  i.genre
+                                                                      .toString(),
+                                                                  style: TextStyle(
+                                                                    color: Colors
+                                                                        .white,
+                                                                    fontFamily: themeProvider
+                                                                        .themeFontFamily,
+                                                                  ),
+                                                                ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      SizedBox(
+                                                        height: 5,
+                                                      ),
+                                                      Consumer2<
+                                                          FontSizesProvider,
+                                                          FontFamilyProvider>(
+                                                        builder: (context,
+                                                            themeProvider1,
+                                                            themeProvider2,
+                                                            child) =>
+                                                            Text(
+                                                              i.synopsis,
+                                                              style:
+                                                              TextStyle(
+                                                                fontSize: themeProvider1
+                                                                    .themeFontSize,
+                                                                fontFamily: themeProvider2
+                                                                    .themeFontFamily,
+                                                              ),
+                                                            ),
+                                                      ),
+                                                    ],
                                                   ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    )
-                                  ],
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                        )
                                 ),
-                              )
-                            ),
-                          ],
+                            ],
+                          ),
                         );
-
                       } else {
                         return CircularProgressIndicator();
                       }
@@ -333,48 +360,58 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
 
     );
-
   }
+
   onSelected(BuildContext context, int item) {
-    switch(item){
+    switch (item) {
       case 0:
-        ThemeProvider themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+        TextColorProvider themeProvider = Provider.of<TextColorProvider>(
+            context, listen: false);
         themeProvider.changeTextColor(Colors.purple);
         break;
       case 1:
-        ThemeProvider themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+        TextColorProvider themeProvider = Provider.of<TextColorProvider>(
+            context, listen: false);
         themeProvider.changeTextColor(Colors.black);
         break;
       case 2:
-        ThemeProvider themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+        CardColorProvider themeProvider = Provider.of<CardColorProvider>(
+            context, listen: false);
         themeProvider.changeCardBackground(Colors.white);
         break;
       case 3:
-        ThemeProvider themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+        CardColorProvider themeProvider = Provider.of<CardColorProvider>(
+            context, listen: false);
         themeProvider.changeCardBackground(Colors.purpleAccent);
         break;
       case 4:
-        ThemeProvider themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+        FontSizesProvider themeProvider = Provider.of<FontSizesProvider>(
+            context, listen: false);
         themeProvider.changeFontSize(10);
         break;
       case 5:
-        ThemeProvider themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+        FontSizesProvider themeProvider = Provider.of<FontSizesProvider>(
+            context, listen: false);
         themeProvider.changeFontSize(20);
         break;
       case 6:
-        ThemeProvider themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+        FontFamilyProvider themeProvider = Provider.of<FontFamilyProvider>(
+            context, listen: false);
         themeProvider.changeFontFamily("Arial");
         break;
       case 7:
-        ThemeProvider themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+        FontFamilyProvider themeProvider = Provider.of<FontFamilyProvider>(
+            context, listen: false);
         themeProvider.changeFontFamily("Roboto");
         break;
       case 8:
-        ThemeProvider themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+        ImageSizeProvider themeProvider = Provider.of<ImageSizeProvider>(
+            context, listen: false);
         themeProvider.changeImageSize("small");
         break;
       case 9:
-        ThemeProvider themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+        ImageSizeProvider themeProvider = Provider.of<ImageSizeProvider>(
+            context, listen: false);
         themeProvider.changeImageSize("big");
         break;
     }

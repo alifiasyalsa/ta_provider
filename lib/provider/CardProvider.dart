@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class CardColorProvider extends ChangeNotifier {
+class CardProvider extends ChangeNotifier {
   Color cardColor = Colors.white;
 
   void changeCardBackground(Color newCardColor) {

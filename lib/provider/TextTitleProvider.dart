@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class TextTitleProvider extends ChangeNotifier {
-  Color titleFontColor = Colors.white;
+  Color titleFontColor = Colors.black;
   double titleFontSize = 20;
 
   void changeTitleFontColor(Color newFontColor) {

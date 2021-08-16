@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ta_provider/models/Movie.dart';
-import 'package:ta_provider/provider/TextColorProvider.dart';
 import 'package:ta_provider/provider/CardProvider.dart';
-import 'package:ta_provider/provider/FontFamilyProvider.dart';
-import 'package:ta_provider/provider/FontSizeProvider.dart';
-import 'package:ta_provider/provider/ImageSizeProvider.dart';
+import 'package:ta_provider/provider/TextSynopsisProvider.dart';
+import 'package:ta_provider/provider/TextTitleProvider.dart';
 import 'package:ta_provider/services/MovieService.dart';
 import 'package:provider/provider.dart';
 
@@ -17,11 +15,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => TextColorProvider()),
-        ChangeNotifierProvider(create: (context) => CardColorProvider()),
-        ChangeNotifierProvider(create: (context) => FontSizesProvider()),
-        ChangeNotifierProvider(create: (context) => FontFamilyProvider()),
-        ChangeNotifierProvider(create: (context) => ImageSizeProvider()),
+        ChangeNotifierProvider(create: (context) => CardProvider()),
+        ChangeNotifierProvider(create: (context) => TextTitleProvider()),
+        ChangeNotifierProvider(create: (context) => TextSynopsisProvider()),
       ],
       child: MaterialApp(
         title: 'MovDB - Provider',
@@ -34,8 +30,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class FontSizeProvider {
-}
+class FontSizeProvider {}
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
@@ -83,76 +78,40 @@ class _MyHomePageState extends State<MyHomePage> {
           PopupMenuButton<int>(
             padding: const EdgeInsets.all(0.0),
             onSelected: (item) => onSelected(context, item),
-            itemBuilder: (context) =>
-            [
+            itemBuilder: (context) => [
               PopupMenuItem<int>(
                 value: 0,
                 child: ListTile(
-                  leading: Icon(Icons.title),
-                  title: Text('Purple Title'),
+                  leading: Icon(Icons.widgets),
+                  title: Text('Ubah background item Card'),
                 ),
               ),
               PopupMenuItem<int>(
                 value: 1,
                 child: ListTile(
                   leading: Icon(Icons.title),
-                  title: Text('Black Title'),
+                  title: Text('Ubah font-size Title'),
                 ),
               ),
               PopupMenuItem<int>(
                 value: 2,
                 child: ListTile(
-                  leading: Icon(Icons.widgets),
-                  title: Text('White Card'),
+                  leading: Icon(Icons.title),
+                  title: Text('Ubah font-color Title'),
                 ),
               ),
               PopupMenuItem<int>(
                 value: 3,
                 child: ListTile(
-                  leading: Icon(Icons.widgets),
-                  title: Text('Purple Card'),
+                  leading: Icon(Icons.text_fields),
+                  title: Text('Ubah font-size Synopsis'),
                 ),
               ),
               PopupMenuItem<int>(
                 value: 4,
                 child: ListTile(
                   leading: Icon(Icons.text_fields),
-                  title: Text('Small Font'),
-                ),
-              ),
-              PopupMenuItem<int>(
-                value: 5,
-                child: ListTile(
-                  leading: Icon(Icons.format_size),
-                  title: Text('Large Font'),
-                ),
-              ),
-              PopupMenuItem<int>(
-                value: 6,
-                child: ListTile(
-                  leading: Icon(Icons.text_format),
-                  title: Text('Arial Font'),
-                ),
-              ),
-              PopupMenuItem<int>(
-                value: 7,
-                child: ListTile(
-                  leading: Icon(Icons.text_format),
-                  title: Text('Roboto Font'),
-                ),
-              ),
-              PopupMenuItem<int>(
-                value: 8,
-                child: ListTile(
-                  leading: Icon(Icons.zoom_out),
-                  title: Text('Small Picture'),
-                ),
-              ),
-              PopupMenuItem<int>(
-                value: 9,
-                child: ListTile(
-                  leading: Icon(Icons.zoom_in),
-                  title: Text('Large Picture'),
+                  title: Text('Ubah font-color Synopsis'),
                 ),
               ),
             ],
@@ -194,11 +153,10 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                         );
                       }).toList(),
-                      onChanged: (newValue) =>
-                          setState(() {
-                            dropdownValue = newValue;
-                            _movieList = getMovies(newValue);
-                          }),
+                      onChanged: (newValue) => setState(() {
+                        dropdownValue = newValue;
+                        _movieList = getMovies(newValue);
+                      }),
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
                       ),
@@ -225,126 +183,97 @@ class _MyHomePageState extends State<MyHomePage> {
                           child: Column(
                             children: [
                               for (var i in snapshots.data)
-                                Consumer<CardColorProvider>(
-                                    builder: (context, themeProvider, child) =>
-                                        Card(
-                                          color: themeProvider.cardColor,
-                                          elevation: 5,
-                                          child: Row(
-                                            children: [
-                                              Flexible(
-                                                flex: 1,
-                                                child:
-                                                Consumer<ImageSizeProvider>(
+                                Consumer<CardProvider>(
+                                  builder: (context, themeProvider, child) =>
+                                      Card(
+                                    color: themeProvider.cardColor,
+                                    elevation: 5,
+                                    child: Row(
+                                      children: [
+                                        Flexible(
+                                          flex: 1,
+                                          child: Container(
+                                            height: 120,
+                                            width: 100,
+                                            decoration: BoxDecoration(
+                                                image: DecorationImage(
+                                                    image: AssetImage(
+                                                        i.image.toString()),
+                                                    fit: BoxFit.cover)),
+                                          ),
+                                        ),
+                                        Flexible(
+                                          flex: 2,
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Consumer<TextTitleProvider>(
                                                   builder: (context,
-                                                      themeProvider, child) =>
-                                                      Container(
-                                                        height: themeProvider
-                                                            .imageSize[1],
-                                                        width: themeProvider
-                                                            .imageSize[0],
-                                                        decoration: BoxDecoration(
-                                                            image: DecorationImage(
-                                                                image: AssetImage(
-                                                                    i.image
-                                                                        .toString()
-                                                                ),
-                                                                fit: BoxFit
-                                                                    .cover
-                                                            )
-                                                        ),
-                                                      ),
-                                                ),
-                                              ),
-                                              Flexible(
-                                                flex: 2,
-                                                child: Padding(
-                                                  padding: const EdgeInsets.all(
-                                                      8.0),
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                    children: [
-                                                      Consumer<
-                                                          TextColorProvider>(
-                                                        builder: (context,
-                                                            themeProvider,
-                                                            child) =>
-                                                            Text(
-                                                              i.title
-                                                                  .toString(),
-                                                              style: TextStyle(
-                                                                fontWeight: FontWeight
-                                                                    .bold,
-                                                                fontSize: 20,
-                                                                color: themeProvider
-                                                                    .titleColor,
-                                                                // fontFamily: themeProvider.themeFontFamily,
-                                                              ),
-                                                            ),
-                                                      ),
-                                                      SizedBox(
-                                                        height: 5,
-                                                      ),
-                                                      Container(
-                                                        decoration: BoxDecoration(
-                                                          borderRadius: BorderRadius
-                                                              .all(
-                                                              Radius.circular(
-                                                                  20)),
-                                                          color: Colors.amber,
-                                                        ),
-                                                        child: Padding(
-                                                          padding:
-                                                          const EdgeInsets.all(
-                                                              8.0),
-                                                          child:
-                                                          Consumer<
-                                                              FontFamilyProvider>(
-                                                            builder: (context,
-                                                                themeProvider,
-                                                                child) =>
-                                                                Text(
-                                                                  i.genre
-                                                                      .toString(),
-                                                                  style: TextStyle(
-                                                                    color: Colors
-                                                                        .white,
-                                                                    fontFamily: themeProvider
-                                                                        .themeFontFamily,
-                                                                  ),
-                                                                ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      SizedBox(
-                                                        height: 5,
-                                                      ),
-                                                      Consumer2<
-                                                          FontSizesProvider,
-                                                          FontFamilyProvider>(
-                                                        builder: (context,
-                                                            themeProvider1,
-                                                            themeProvider2,
-                                                            child) =>
-                                                            Text(
-                                                              i.synopsis,
-                                                              style:
-                                                              TextStyle(
-                                                                fontSize: themeProvider1
-                                                                    .themeFontSize,
-                                                                fontFamily: themeProvider2
-                                                                    .themeFontFamily,
-                                                              ),
-                                                            ),
-                                                      ),
-                                                    ],
+                                                          titleProvider,
+                                                          child) =>
+                                                      Text(
+                                                    i.title.toString(),
+                                                    style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: titleProvider
+                                                          .titleFontSize,
+                                                      color: titleProvider
+                                                          .titleFontColor,
+                                                      // fontFamily: themeProvider.themeFontFamily,
+                                                    ),
                                                   ),
                                                 ),
-                                              )
-                                            ],
+                                                SizedBox(
+                                                  height: 5,
+                                                ),
+                                                Container(
+                                                  decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.all(
+                                                            Radius.circular(
+                                                                20)),
+                                                    color: Colors.amber,
+                                                  ),
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                    child: Text(
+                                                      i.genre.toString(),
+                                                      style: TextStyle(
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                SizedBox(
+                                                  height: 5,
+                                                ),
+                                                Consumer<TextSynopsisProvider>(
+                                                  builder: (context,
+                                                          synopsisProvider,
+                                                          child) =>
+                                                      Text(
+                                                    i.synopsis,
+                                                    style: TextStyle(
+                                                      fontSize: synopsisProvider
+                                                          .synopsisFontSize,
+                                                      color: synopsisProvider
+                                                          .synopsisFontColor,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         )
+                                      ],
+                                    ),
+                                  ),
                                 ),
                             ],
                           ),
@@ -358,61 +287,35 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
       ),
-
     );
   }
 
   onSelected(BuildContext context, int item) {
     switch (item) {
       case 0:
-        TextColorProvider themeProvider = Provider.of<TextColorProvider>(
-            context, listen: false);
-        themeProvider.changeTextColor(Colors.purple);
+        CardProvider cardProvider =
+            Provider.of<CardProvider>(context, listen: false);
+        cardProvider.changeCardBackground(Colors.purple);
         break;
       case 1:
-        TextColorProvider themeProvider = Provider.of<TextColorProvider>(
-            context, listen: false);
-        themeProvider.changeTextColor(Colors.black);
+        TextTitleProvider titleProvider =
+            Provider.of<TextTitleProvider>(context, listen: false);
+        titleProvider.changeTitleFontSize(25);
         break;
       case 2:
-        CardColorProvider themeProvider = Provider.of<CardColorProvider>(
-            context, listen: false);
-        themeProvider.changeCardBackground(Colors.white);
+        TextTitleProvider titleProvider =
+            Provider.of<TextTitleProvider>(context, listen: false);
+        titleProvider.changeTitleFontColor(Colors.purpleAccent);
         break;
       case 3:
-        CardColorProvider themeProvider = Provider.of<CardColorProvider>(
-            context, listen: false);
-        themeProvider.changeCardBackground(Colors.purpleAccent);
+        TextSynopsisProvider synopsisProvider =
+            Provider.of<TextSynopsisProvider>(context, listen: false);
+        synopsisProvider.changeSynopsisFontSize(20);
         break;
       case 4:
-        FontSizesProvider themeProvider = Provider.of<FontSizesProvider>(
-            context, listen: false);
-        themeProvider.changeFontSize(10);
-        break;
-      case 5:
-        FontSizesProvider themeProvider = Provider.of<FontSizesProvider>(
-            context, listen: false);
-        themeProvider.changeFontSize(20);
-        break;
-      case 6:
-        FontFamilyProvider themeProvider = Provider.of<FontFamilyProvider>(
-            context, listen: false);
-        themeProvider.changeFontFamily("Arial");
-        break;
-      case 7:
-        FontFamilyProvider themeProvider = Provider.of<FontFamilyProvider>(
-            context, listen: false);
-        themeProvider.changeFontFamily("Roboto");
-        break;
-      case 8:
-        ImageSizeProvider themeProvider = Provider.of<ImageSizeProvider>(
-            context, listen: false);
-        themeProvider.changeImageSize("small");
-        break;
-      case 9:
-        ImageSizeProvider themeProvider = Provider.of<ImageSizeProvider>(
-            context, listen: false);
-        themeProvider.changeImageSize("big");
+        TextSynopsisProvider synopsisProvider =
+            Provider.of<TextSynopsisProvider>(context, listen: false);
+        synopsisProvider.changeSynopsisFontColor(Colors.purpleAccent);
         break;
     }
   }
